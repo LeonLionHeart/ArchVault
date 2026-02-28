@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=ArchVault
+Comment=Backup & Restore Manager for Arch Linux
+GenericName=Backup Manager
+Exec=archvault
+Icon=archvault
+Terminal=false
+Type=Application
+Categories=System;Archiving;Utility;
+Keywords=backup;restore;btrfs;rsync;snapshot;archive;
+StartupNotify=true
+StartupWMClass=archvault

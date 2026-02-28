@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1793d1"/>
+      <stop offset="100%" stop-color="#0e5f8a"/>
+    </linearGradient>
+    <linearGradient id="shield" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e2e8f0"/>
+      <stop offset="100%" stop-color="#94a3b8"/>
+    </linearGradient>
+  </defs>
+  <!-- Background circle -->
+  <circle cx="128" cy="128" r="120" fill="url(#bg)"/>
+  <!-- Shield body -->
+  <path d="M128 40 L200 75 L200 140 C200 185 165 215 128 230 C91 215 56 185 56 140 L56 75 Z"
+        fill="url(#shield)" opacity="0.95"/>
+  <!-- Arch Linux 'A' shape inside shield -->
+  <path d="M128 78 L158 170 L148 170 L140 148 L116 148 L108 170 L98 170 Z M128 100 L120 140 L136 140 Z"
+        fill="#1793d1"/>
+  <!-- Vault lock circle -->
+  <circle cx="128" cy="180" r="14" fill="none" stroke="#1793d1" stroke-width="4"/>
+  <rect x="122" y="180" width="12" height="14" rx="2" fill="#1793d1"/>
+  <!-- Lock shackle -->
+  <path d="M120 180 L120 172 C120 164 136 164 136 172 L136 180"
+        fill="none" stroke="#1793d1" stroke-width="4" stroke-linecap="round"/>
+</svg>
