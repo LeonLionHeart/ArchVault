@@ -3,6 +3,7 @@ import sys
 import os
 import json
 import argparse
+import subprocess
 
 # ── PARSE --run-task FIRST — before ANY Qt imports ────────────────────────
 # Qt reads QT_QPA_PLATFORM at QApplication creation, but some distro builds
@@ -48,7 +49,7 @@ from ui_tabs_main import UITabsMainMixin
 from ui_tabs_targets import UITabsTargetsMixin
 from ui_tab_tasks import TasksMixin
 
-VERSION = "v5.0.0-beta"
+VERSION = "v5.0.1-beta"
 SETTINGS_FILE = "/etc/archvault/app_settings.json"
 JOBS_FILE = "/etc/archvault/archvault_jobs.json"
 
@@ -64,6 +65,117 @@ def _load_app_icon():
         if os.path.exists(p):
             return QIcon(p)
     return None
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+#  GNOME BACKGROUND PORTAL — shows in quick-settings panel
+# ═════════════════════════════════════════════════════════════════════════════
+
+class _GnomeBackgroundPortal:
+    """
+    Communicates with org.freedesktop.portal.Background via gdbus.
+    Shows ArchVault in the GNOME quick-settings "Background Apps" section.
+    Fails silently on non-GNOME desktops or if the portal isn't available.
+    """
+
+    _DEST   = "org.freedesktop.portal.Desktop"
+    _PATH   = "/org/freedesktop/portal/desktop"
+    _IFACE  = "org.freedesktop.portal.Background"
+
+    def __init__(self):
+        self._available = None  # lazy-check
+        self._last_status = None
+
+    def _gdbus(self, method, args_str):
+        """Call a portal method via gdbus. Returns True on success."""
+        try:
+            cmd = [
+                "gdbus", "call", "--session",
+                "--dest", self._DEST,
+                "--object-path", self._PATH,
+                "--method", f"{self._IFACE}.{method}",
+            ] + args_str
+            result = subprocess.run(
+                cmd, capture_output=True, text=True, timeout=5,
+                env=self._get_bus_env())
+            return result.returncode == 0
+        except Exception:
+            return False
+
+    def _get_bus_env(self):
+        """
+        Build environment for gdbus. When running as root via pkexec,
+        DBUS_SESSION_BUS_ADDRESS must point to the invoking user's bus.
+        """
+        env = os.environ.copy()
+        if "DBUS_SESSION_BUS_ADDRESS" not in env:
+            # Try to find the invoking user's session bus
+            sudo_uid = os.environ.get("PKEXEC_UID") or os.environ.get("SUDO_UID")
+            if sudo_uid:
+                bus_path = f"unix:path=/run/user/{sudo_uid}/bus"
+                if os.path.exists(f"/run/user/{sudo_uid}/bus"):
+                    env["DBUS_SESSION_BUS_ADDRESS"] = bus_path
+            else:
+                # Try XDG_RUNTIME_DIR
+                xdg_rt = os.environ.get("XDG_RUNTIME_DIR", "")
+                bus_file = os.path.join(xdg_rt, "bus")
+                if xdg_rt and os.path.exists(bus_file):
+                    env["DBUS_SESSION_BUS_ADDRESS"] = f"unix:path={bus_file}"
+        return env
+
+    def is_available(self):
+        """Check once if the background portal is reachable."""
+        if self._available is None:
+            try:
+                cmd = [
+                    "gdbus", "introspect", "--session",
+                    "--dest", self._DEST,
+                    "--object-path", self._PATH,
+                ]
+                result = subprocess.run(
+                    cmd, capture_output=True, text=True, timeout=3,
+                    env=self._get_bus_env())
+                self._available = (
+                    result.returncode == 0
+                    and "Background" in result.stdout)
+            except Exception:
+                self._available = False
+        return self._available
+
+    def request_background(self):
+        """
+        Request permission to run in the background.
+        GNOME will show ArchVault in the Background Apps section.
+        """
+        if not self.is_available():
+            return False
+        return self._gdbus("RequestBackground", [
+            "",  # parent_window (empty = no parent)
+            "{'reason': <'ArchVault monitors scheduled backups and "
+            "runs automated tasks'>}",
+        ])
+
+    def set_status(self, message):
+        """
+        Update the status message shown next to ArchVault in the
+        GNOME quick-settings Background Apps panel.
+        Uses SetStatus (portal version 2, GNOME 44+).
+        """
+        if not self.is_available():
+            return False
+        if message == self._last_status:
+            return True  # No change, skip the call
+        self._last_status = message
+        # Escape single quotes in message
+        safe_msg = message.replace("'", "\\'")
+        return self._gdbus("SetStatus", [
+            f"{{'message': <'{safe_msg}'>}}",
+        ])
+
+    def clear_status(self):
+        """Clear status when app exits."""
+        if self._available:
+            self._gdbus("SetStatus", ["{'message': <''>}"])
 
 
 class ArchVault(
@@ -155,8 +267,14 @@ class ArchVault(
         self.job_monitor_timer.timeout.connect(self.sync_jobs_from_disk)
         self.job_monitor_timer.start(3000)
 
+        # ── GNOME Background Portal ──────────────────────────────────────
+        self._portal = _GnomeBackgroundPortal()
+
         if not args.run_task:
             self.init_system_tray()
+            # Register with GNOME background apps panel
+            self._portal.request_background()
+            self._portal.set_status("Idle — no active jobs")
 
     def init_system_tray(self):
         self.tray_icon = QSystemTrayIcon(self)
@@ -205,12 +323,14 @@ class ArchVault(
 
         if is_paused:
             status_text = "Status: Paused"
+            portal_msg = "Backup paused"
             icon = self.style().standardIcon(
                 QStyle.StandardPixmap.SP_MediaPause)
             tip = "ArchVault — Stream Paused"
         elif is_running or active_cloud:
             job_type = getattr(self, 'active_job_type', 'Backup') or 'Backup'
             status_text = f"Status: {job_type.title()} Running..."
+            portal_msg = f"{job_type.title()} in progress…"
             icon = self.style().standardIcon(
                 QStyle.StandardPixmap.SP_MediaPlay)
             tip = f"ArchVault — {job_type.title()} in progress"
@@ -219,11 +339,13 @@ class ArchVault(
                 j.get("status") == "Running" for j in self.job_history)
             if running_bg:
                 status_text = "Status: Background Task Running"
+                portal_msg = "Background task running…"
                 icon = self.style().standardIcon(
                     QStyle.StandardPixmap.SP_MediaPlay)
                 tip = "ArchVault — Background task in progress"
             else:
                 status_text = "Status: Idle"
+                portal_msg = "Idle — no active jobs"
                 icon = self._app_icon
                 tip = "ArchVault — Idle"
 
@@ -231,6 +353,10 @@ class ArchVault(
         self.tray_icon.setToolTip(tip)
         if hasattr(self, '_tray_status_action'):
             self._tray_status_action.setText(status_text)
+
+        # Update GNOME Background Apps panel
+        if hasattr(self, '_portal'):
+            self._portal.set_status(portal_msg)
 
     def show_normal(self):
         self.show()
@@ -249,6 +375,9 @@ class ArchVault(
             if self.process.state() == QProcess.ProcessState.Running:
                 self.stop_process()
                 self.process.waitForFinished(2000)
+            # Clear portal status on exit
+            if hasattr(self, '_portal'):
+                self._portal.clear_status()
             event.accept()
             return
 
@@ -281,6 +410,8 @@ class ArchVault(
             elif clicked == btn_kill:
                 self.stop_process()
                 self.process.waitForFinished(2000)
+                if hasattr(self, '_portal'):
+                    self._portal.clear_status()
                 event.accept()
             else:
                 event.ignore()
@@ -288,6 +419,8 @@ class ArchVault(
             self.hide()
             event.ignore()
         else:
+            if hasattr(self, '_portal'):
+                self._portal.clear_status()
             event.accept()
 
     def sync_jobs_from_disk(self):
@@ -367,6 +500,10 @@ class ArchVault(
         self.settings["tray_notifications"] = (
             self.toggle_tray_notifications.isChecked())
         self.settings["show_log_bar"] = self.toggle_show_log_bar.isChecked()
+
+        # Apply autostart setting (creates/removes .desktop entry)
+        if hasattr(self, 'toggle_autostart'):
+            self._apply_autostart(self.toggle_autostart.isChecked())
 
         # Dashboard layout is saved separately via _save_dashboard_layout
         # but ensure it's preserved during settings save
@@ -500,6 +637,10 @@ class ArchVault(
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
+
+    # Tell GNOME which .desktop file this app belongs to
+    app.setDesktopFileName("archvault")
+
     window = ArchVault()
     if args.run_task:
         window.execute_headless_task(args.run_task)

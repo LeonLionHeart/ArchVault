@@ -18,7 +18,7 @@ import subprocess
 import json
 from datetime import datetime
 
-VERSION = "v5.0.0-beta"
+VERSION = "v5.0.1-beta"
 
 # ── Shared micro-styles ──────────────────────────────────────────────────────
 _SEC_LABEL = ("font-size:10px; font-weight:700; letter-spacing:1.5px; "
@@ -404,6 +404,29 @@ class SettingsMixin:
         tray_note.setWordWrap(True)
         gen_lay.addWidget(tray_note)
 
+        gen_lay.addSpacing(6)
+
+        autostart_row = QHBoxLayout()
+        self.toggle_autostart = ToggleSwitch()
+        self.toggle_autostart.setChecked(self._detect_autostart())
+        autostart_lbl = QLabel(
+            "Start ArchVault at Login  (launch minimised to tray "
+            "on desktop startup)")
+        autostart_lbl.setStyleSheet(_TOGGLE_LBL)
+        autostart_row.addWidget(self.toggle_autostart)
+        autostart_row.addWidget(autostart_lbl)
+        autostart_row.addStretch()
+        gen_lay.addLayout(autostart_row)
+
+        autostart_note = QLabel(
+            "Creates an XDG autostart entry so ArchVault launches "
+            "in the background when you log in. Useful for monitoring "
+            "scheduled tasks. Requires 'Minimise to Tray on Close' "
+            "to stay running.")
+        autostart_note.setStyleSheet(_NOTE_STYLE)
+        autostart_note.setWordWrap(True)
+        gen_lay.addWidget(autostart_note)
+
         gen_lay.addStretch()
         gen_scroll = QScrollArea()
         gen_scroll.setWidgetResizable(True)
@@ -561,37 +584,40 @@ class SettingsMixin:
         </style>
         <h2>ArchVault Change Log</h2>
 
-        <p class="ver-current">v5.0.0-beta
+        <p class="ver-current">v5.0.1-beta
+            <span class="date">2026-02-28</span></p>
+        <ul>
+            <li><b>Feature — GNOME Background Apps integration:</b>
+                ArchVault now registers with the XDG Background
+                Portal via DBus. When minimised to tray, it appears
+                in the GNOME quick-settings "Background Apps" panel
+                with a live status message (Idle, Backup in
+                progress, Paused, etc.). Works on GNOME 44+ with
+                xdg-desktop-portal. Fails silently on other DEs.</li>
+            <li><b>Improved — Desktop file identity:</b>
+                <code>setDesktopFileName("archvault")</code> links
+                the running process to the .desktop launcher so
+                GNOME correctly identifies the app in the panel,
+                Alt-Tab, and background apps list.</li>
+            <li><b>Improved — DBus session bus for root:</b>
+                Portal calls detect the invoking user's session bus
+                via PKEXEC_UID / SUDO_UID so background registration
+                works even when running as root via pkexec.</li>
+            <li><b>Feature — Start at Login toggle:</b>
+                New setting in General tab creates an XDG autostart
+                desktop entry in the user's
+                <code>~/.config/autostart/</code> directory.
+                ArchVault launches minimised to tray on desktop
+                startup. Resolves the real user's home directory
+                when running as root via pkexec/sudo.</li>
+        </ul>
+
+        <p class="ver-old">v5.0.0-beta
             <span class="date">2026-02-28</span></p>
         <ul>
             <li><b>🎉  First public release — AUR &amp; GitHub.</b></li>
-            <li><b>Feature — Themed confirmation dialogs:</b>
-                All destructive actions show polished, themed
-                confirmation dialogs with contextual detail.</li>
-            <li><b>Feature — 2-D dashboard grid:</b>
-                Tiles freely scalable via 4-edge resize (cols
-                &amp; rows). 2-D bin-packing, drag-to-reorder,
-                add/remove tiles, layout persistence.</li>
-            <li><b>Feature — 13 dashboard tiles:</b>
-                Stats, charts, quick actions, disk usage,
-                recent jobs, system health, timers, and more.</li>
-            <li><b>Feature — Scheduled tasks with systemd:</b>
-                Automated backups via systemd timers with
-                human-readable diagnostics and native
-                Linux notifications.</li>
-            <li><b>Feature — 6 theme gallery:</b>
-                Dark &amp; light themes with clean separation.
-                Real-time preview and instant switching.</li>
-            <li><b>Engines:</b> Ext4 tar.gz, Btrfs native,
-                Rsync incremental, Bare-metal image, Cloud
-                (rclone), selective file restore.</li>
-            <li><b>Targets:</b> Network (SMB/NFS/SSHFS),
-                Local, USB, SFTP, Cloud (S3/GCS/Azure/
-                Backblaze/Dropbox/Drive).</li>
-            <li><b>App icon:</b> ArchVault SVG icon used for
-                window titlebar, system tray, taskbar, and
-                desktop launcher. Falls back to Qt system icon
-                when running from source without install.</li>
+            <li><b>Themed confirmation dialogs, 2-D dashboard,
+                scheduled tasks, theme gallery, app icon.</b></li>
         </ul>
 
         <p class="ver-old">v4.3.19-beta
@@ -836,3 +862,80 @@ class SettingsMixin:
         for cname, card in self._theme_cards.items():
             card.set_selected(cname == name)
         self.theme_combo.setCurrentText(name)
+
+    # ── Autostart helpers ─────────────────────────────────────────────────
+
+    _AUTOSTART_FILENAME = "archvault.desktop"
+    _AUTOSTART_CONTENT = (
+        "[Desktop Entry]\n"
+        "Name=ArchVault\n"
+        "Comment=Backup & Restore Manager for Arch Linux\n"
+        "GenericName=Backup Manager\n"
+        "Exec=archvault\n"
+        "Icon=archvault\n"
+        "Terminal=false\n"
+        "Type=Application\n"
+        "Categories=System;Archiving;Utility;\n"
+        "X-GNOME-Autostart-enabled=true\n"
+        "X-GNOME-Autostart-Delay=5\n"
+        "StartupNotify=false\n"
+    )
+
+    def _get_autostart_dir(self):
+        """
+        Return the real user's ~/.config/autostart/ directory.
+        When running as root via pkexec/sudo, resolve the invoking
+        user's home from PKEXEC_UID / SUDO_UID.
+        """
+        uid = (os.environ.get("PKEXEC_UID")
+               or os.environ.get("SUDO_UID"))
+        if uid:
+            try:
+                import pwd
+                pw = pwd.getpwuid(int(uid))
+                return os.path.join(pw.pw_dir, ".config", "autostart")
+            except Exception:
+                pass
+        # Fallback — system-wide autostart
+        return "/etc/xdg/autostart"
+
+    def _get_autostart_path(self):
+        return os.path.join(
+            self._get_autostart_dir(), self._AUTOSTART_FILENAME)
+
+    def _detect_autostart(self):
+        """Check if the autostart desktop entry exists."""
+        return os.path.isfile(self._get_autostart_path())
+
+    def _apply_autostart(self, enabled):
+        """Create or remove the autostart desktop entry."""
+        path = self._get_autostart_path()
+        if enabled:
+            try:
+                autodir = self._get_autostart_dir()
+                os.makedirs(autodir, exist_ok=True)
+                with open(path, "w") as f:
+                    f.write(self._AUTOSTART_CONTENT)
+                os.chmod(path, 0o644)
+                # Fix ownership if we're root writing to user dir
+                uid = (os.environ.get("PKEXEC_UID")
+                       or os.environ.get("SUDO_UID"))
+                gid = (os.environ.get("SUDO_GID"))
+                if uid:
+                    u = int(uid)
+                    g = int(gid) if gid else u
+                    os.chown(path, u, g)
+                    # Also fix autostart dir ownership if we created it
+                    os.chown(autodir, u, g)
+                self.log("INFO: Autostart entry created — ArchVault "
+                         "will launch at login.")
+            except Exception as e:
+                self.log(f"WARN: Could not create autostart entry: {e}")
+        else:
+            try:
+                if os.path.exists(path):
+                    os.remove(path)
+                self.log("INFO: Autostart entry removed — ArchVault "
+                         "will no longer launch at login.")
+            except Exception as e:
+                self.log(f"WARN: Could not remove autostart entry: {e}")
