@@ -80,6 +80,11 @@ makepkg -si
 
 - Clean, modern design with no theme bleed
 
+## Screenshots
+<img width="3833" height="2073" alt="image" src="https://github.com/user-attachments/assets/e03f5258-776c-492c-ab27-df8d3ba004de" />
+<img width="3833" height="2073" alt="image" src="https://github.com/user-attachments/assets/b928e061-0ec1-4beb-a44f-62bd1df8519f" />
+<img width="3833" height="2073" alt="image" src="https://github.com/user-attachments/assets/70feaf55-5247-41b7-b958-8098b45be729" />
+
 ### Security
 
 - Password-protected access with PBKDF2 key derivation
@@ -90,51 +95,13 @@ makepkg -si
 
 - File permissions locked to `0600`
 
-## Screenshots
-<img width="3833" height="2073" alt="image" src="https://github.com/user-attachments/assets/e03f5258-776c-492c-ab27-df8d3ba004de" />
-<img width="3833" height="2073" alt="image" src="https://github.com/user-attachments/assets/b928e061-0ec1-4beb-a44f-62bd1df8519f" />
-<img width="3833" height="2073" alt="image" src="https://github.com/user-attachments/assets/70feaf55-5247-41b7-b958-8098b45be729" />
-
-## Installation
-
-### From AUR (recommended)
-
-```
-yay -S archvault
-```
-
-Or with any AUR helper:
-
-```
-paru -S archvault
-```
-
-### Manual Install
-
-```
-git clone https://github.com/LeonLionHeart/archvault.git  
-cd archvault  
-makepkg -si
-```
-
 ### Dependencies
 
 **Required:**
 
-- `python` (3.10+)
-
-- `python-pyqt6`
-
-- `python-cryptography`
-
-- `rsync`
-
-- `btrfs-progs`
+- `python python-pyqt6 python-cryptography rsync btrfs-progs systemd`
 
 - `tar`, `gzip`, `coreutils`
-
-- `systemd`
-
 **Optional:**
 
 - `rclone` — Cloud backup support
@@ -214,5 +181,7 @@ This project is licensed under the **GNU General Public License v3.0** — see [
 
 ## Contributing
 
-Contributions are welcome! Please open an issue or pull request on GitHub.
+Contributions are welcome! 
+
+Please open an issue or pull request on GitHub.
 
