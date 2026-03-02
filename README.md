@@ -5,13 +5,25 @@
 A full-featured, themeable GUI application for managing system backups on Arch Linux. Supports multiple backup engines, network/local/cloud targets, scheduled tasks via systemd, and a customizable dashboard.
 
 ![Version](https://img.shields.io/badge/version-5.0.0--beta-blue) ![License](https://img.shields.io/badge/license-GPL--3.0-green) ![Platform](https://img.shields.io/badge/platform-Arch%20Linux-1793d1) ![Python](https://img.shields.io/badge/python-3.10%2B-yellow)
-## Screenshots
-<img width="3833" height="2073" alt="image" src="https://github.com/user-attachments/assets/e03f5258-776c-492c-ab27-df8d3ba004de" />
-<img width="3833" height="2073" alt="image" src="https://github.com/user-attachments/assets/b928e061-0ec1-4beb-a44f-62bd1df8519f" />
-<img width="3833" height="2073" alt="image" src="https://github.com/user-attachments/assets/70feaf55-5247-41b7-b958-8098b45be729" />
+## Installation
 
+### From AUR (recommended)
+```
+yay -S archvault
+```
+or
 
+```
+paru -S archvault
+```
 
+### Manual Install
+
+```
+git clone https://github.com/LeonLionHeart/archvault.git  
+cd archvault  
+makepkg -si
+```
 ## Features
 
 ### Backup Engines
@@ -78,6 +90,10 @@ A full-featured, themeable GUI application for managing system backups on Arch L
 
 - File permissions locked to `0600`
 
+## Screenshots
+<img width="3833" height="2073" alt="image" src="https://github.com/user-attachments/assets/e03f5258-776c-492c-ab27-df8d3ba004de" />
+<img width="3833" height="2073" alt="image" src="https://github.com/user-attachments/assets/b928e061-0ec1-4beb-a44f-62bd1df8519f" />
+<img width="3833" height="2073" alt="image" src="https://github.com/user-attachments/assets/70feaf55-5247-41b7-b958-8098b45be729" />
 
 ## Installation
 
