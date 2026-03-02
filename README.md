@@ -101,10 +101,8 @@ makepkg -si
 
 **Required:**
 
-- `python python-pyqt6 python-cryptography rsync btrfs-progs systemd`
+- `python python-pyqt6 python-cryptography rsync btrfs-progs systemd tar gzip coreutils`
 
-- `tar`, `gzip`, `coreutils`
-- 
 **Optional:**
 
 - `rclone` — Cloud backup support
