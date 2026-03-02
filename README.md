@@ -25,6 +25,12 @@ cd archvault
 makepkg -si
 ```
 
+## Screenshots
+<img width="3833" height="2073" alt="image" src="https://github.com/user-attachments/assets/e03f5258-776c-492c-ab27-df8d3ba004de" />
+<img width="3833" height="2073" alt="image" src="https://github.com/user-attachments/assets/b928e061-0ec1-4beb-a44f-62bd1df8519f" />
+<img width="3833" height="2073" alt="image" src="https://github.com/user-attachments/assets/70feaf55-5247-41b7-b958-8098b45be729" />
+
+
 ### Dashboard
 
 - 13 available tiles: stats, charts, disk usage, recent jobs, system health, and more
@@ -45,10 +51,7 @@ makepkg -si
 
 - Clean, modern design with no theme bleed
 
-## Screenshots
-<img width="3833" height="2073" alt="image" src="https://github.com/user-attachments/assets/e03f5258-776c-492c-ab27-df8d3ba004de" />
-<img width="3833" height="2073" alt="image" src="https://github.com/user-attachments/assets/b928e061-0ec1-4beb-a44f-62bd1df8519f" />
-<img width="3833" height="2073" alt="image" src="https://github.com/user-attachments/assets/70feaf55-5247-41b7-b958-8098b45be729" />
+- ## Features
 
 ### Security
 
@@ -59,8 +62,6 @@ makepkg -si
 - Profile credentials encrypted at rest
 
 - File permissions locked to `0600`
-
-- ## Features
 
 ### Backup Engines
 
