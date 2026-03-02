@@ -24,41 +24,6 @@ git clone https://github.com/LeonLionHeart/archvault.git
 cd archvault  
 makepkg -si
 ```
-## Features
-
-### Backup Engines
-
-- **Ext4 tar.gz** — Compressed full-system archives
-
-- **Btrfs Native** — Native btrfs send/receive snapshots
-
-- **Rsync Incremental** — Hardlink-based incremental backups
-
-- **Bare Metal Image** — Full disk image via `dd`
-
-- **Cloud Upload** — rclone-powered uploads to any cloud provider
-
-### Backup Targets
-
-- **Network** — SMB, NFS, SSHFS remote shares
-
-- **Local** — Any mounted local directory
-
-- **USB** — Removable drives with auto-detection
-
-- **SFTP** — Secure FTP with key or password auth
-
-- **Cloud** — AWS S3, Google Cloud, Azure, Backblaze B2, Dropbox, Google Drive
-
-### Scheduling & Automation
-
-- Scheduled tasks via **systemd timers**
-
-- Per-day scheduling with retention policies
-
-- Headless execution for unattended backups
-
-- Native Linux desktop notifications on completion/failure
 
 ### Dashboard
 
@@ -94,6 +59,42 @@ makepkg -si
 - Profile credentials encrypted at rest
 
 - File permissions locked to `0600`
+
+- ## Features
+
+### Backup Engines
+
+- **Ext4 tar.gz** — Compressed full-system archives
+
+- **Btrfs Native** — Native btrfs send/receive snapshots
+
+- **Rsync Incremental** — Hardlink-based incremental backups
+
+- **Bare Metal Image** — Full disk image via `dd`
+
+- **Cloud Upload** — rclone-powered uploads to any cloud provider
+
+### Backup Targets
+
+- **Network** — SMB, NFS, SSHFS remote shares
+
+- **Local** — Any mounted local directory
+
+- **USB** — Removable drives with auto-detection
+
+- **SFTP** — Secure FTP with key or password auth
+
+- **Cloud** — AWS S3, Google Cloud, Azure, Backblaze B2, Dropbox, Google Drive
+
+### Scheduling & Automation
+
+- Scheduled tasks via **systemd timers**
+
+- Per-day scheduling with retention policies
+
+- Headless execution for unattended backups
+
+- Native Linux desktop notifications on completion/failure
 
 ### Dependencies
 
