@@ -173,7 +173,7 @@ class _UnlockDialog(QDialog):
             layout.addWidget(warn)
 
         lbl = QLabel("Master Password:")
-        lbl.setStyleSheet("font-weight: bold; background-color: transparent;")
+        lbl.setStyleSheet("color: #8d8d8d; font-weight: bold; background-color: transparent;")
         layout.addWidget(lbl)
 
         self.pw = QLineEdit()
