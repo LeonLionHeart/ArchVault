@@ -10,6 +10,11 @@ A full-featured, themeable GUI application for managing system backups on Arch L
 ![Python](https://img.shields.io/badge/python-3.10%2B-yellow)
 
 ---
+## Screenshots
+<img width="3833" height="2073" alt="Screenshot From 2026-02-28 21-38-08" src="https://github.com/user-attachments/assets/ff8f9670-1bd6-4a57-a204-6af4292ef0f0" />
+<img width="3833" height="2073" alt="Screenshot From 2026-02-28 21-39-54" src="https://github.com/user-attachments/assets/ff432afc-ec62-47c0-8ca6-fc673b2eca46" />
+<img width="3833" height="2073" alt="Screenshot From 2026-02-28 21-40-34" src="https://github.com/user-attachments/assets/da0b8b4b-a511-43f9-9bf2-d5902330882f" />
+<img width="3833" height="2073" alt="Screenshot From 2026-02-28 21-47-13" src="https://github.com/user-attachments/assets/bc5eec96-d02c-4651-9241-c560eecd04ea" />
 
 ## Features
 
