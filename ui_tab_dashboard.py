@@ -1,5 +1,5 @@
 """
-ui_tab_dashboard.py  —  ArchVault v5.0.2-beta
+ui_tab_dashboard.py  —  ArchVault v5.0.3-beta
 Editable drag-and-drop dashboard with 2-D tile grid.
   • Tiles have both column span (1–4) and row span (1–4)
   • Resize from any edge: left/right = cols, top/bottom = rows
@@ -26,7 +26,18 @@ from PyQt6.QtGui import (
 )
 from ui_widgets import confirm_action
 
-VERSION = "v5.0.2-beta"
+VERSION = "v5.0.3-beta"
+
+
+def _widget_alive(w):
+    """Return True if a Qt widget's C++ object is still alive."""
+    if w is None:
+        return False
+    try:
+        w.objectName()
+        return True
+    except RuntimeError:
+        return False
 
 _GREEN  = "#10b981"; _RED = "#ef4444"; _BLUE = "#38bdf8"
 _INDIGO = "#818cf8"; _AMBER = "#f59e0b"; _TEAL = "#2dd4bf"
@@ -1219,8 +1230,9 @@ class DashboardMixin:
 
         for ta in ("_db_tbl_disk", "_db_tbl_recent",
                    "_db_tbl_timers", "_db_tbl_prot"):
-            if hasattr(self, ta):
-                _apply_table_css(getattr(self, ta), pan, inp, bdr, fg)
+            w = getattr(self, ta, None)
+            if w is not None and _widget_alive(w):
+                _apply_table_css(w, pan, inp, bdr, fg)
 
     # ══════════════════════════════════════════════════════════════════════
     #  DATA REFRESH
@@ -1355,7 +1367,7 @@ class DashboardMixin:
                 self._db_nt_target.setText("—")
                 self._db_nt_detail.setText("—")
 
-        if "disk_usage" in active and hasattr(self, '_db_tbl_disk'):
+        if "disk_usage" in active and hasattr(self, '_db_tbl_disk') and _widget_alive(self._db_tbl_disk):
             self._db_tbl_disk.setRowCount(0)
             seen = set()
             for cat, cps in getattr(self,"profiles",{}).items():
@@ -1397,7 +1409,7 @@ class DashboardMixin:
                     p2.setForeground(QBrush(QColor(pc)))
                     self._db_tbl_disk.setItem(rc, 4, p2)
 
-        if "recent_jobs" in active and hasattr(self, '_db_tbl_recent'):
+        if "recent_jobs" in active and hasattr(self, '_db_tbl_recent') and _widget_alive(self._db_tbl_recent):
             self._db_tbl_recent.setRowCount(0)
             for job in reversed(jobs[-10:]):
                 rc = self._db_tbl_recent.rowCount()
@@ -1463,7 +1475,7 @@ class DashboardMixin:
             except Exception:
                 self._db_sh_uptime.setText("Uptime: unavailable")
 
-        if "active_timers" in active and hasattr(self,'_db_tbl_timers'):
+        if "active_timers" in active and hasattr(self,'_db_tbl_timers') and _widget_alive(self._db_tbl_timers):
             self._db_tbl_timers.setRowCount(0)
             try:
                 r = subprocess.run(
@@ -1527,7 +1539,7 @@ class DashboardMixin:
                 self._db_bs_total.setText("—")
             self._db_bs_sub.setText(f"across {dc} destination(s)")
 
-        if "protection" in active and hasattr(self,'_db_tbl_prot'):
+        if "protection" in active and hasattr(self,'_db_tbl_prot') and _widget_alive(self._db_tbl_prot):
             self._db_tbl_prot.setRowCount(0)
             now = datetime.now()
             for cat, cps in getattr(self,"profiles",{}).items():

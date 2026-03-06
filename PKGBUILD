@@ -1,6 +1,6 @@
 # Maintainer: LeonLionHeart
 pkgname=archvault
-pkgver=5.0.2_beta
+pkgver=5.0.3_beta
 pkgrel=1
 pkgdesc="Backup & Restore Manager for Arch Linux — GUI for rsync, btrfs, tar, rclone with scheduling, encryption, and cloud support"
 arch=('any')

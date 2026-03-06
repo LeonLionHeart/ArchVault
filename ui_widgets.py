@@ -1,5 +1,5 @@
 """
-ui_widgets.py  —  ArchVault v5.0.2-beta
+ui_widgets.py  —  ArchVault v5.0.3-beta
 Shared widgets: ToggleSwitch, confirm_action dialog.
 """
 from PyQt6.QtWidgets import (
@@ -12,7 +12,7 @@ from PyQt6.QtCore import (
 )
 from PyQt6.QtGui import QPainter, QColor, QPen, QFont
 
-VERSION = "v5.0.2-beta"
+VERSION = "v5.0.3-beta"
 
 
 # ═════════════════════════════════════════════════════════════════════════════

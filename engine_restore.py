@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import QMessageBox
 from PyQt6.QtCore import Qt
 from ui_widgets import confirm_action
 
-VERSION = "v5.0.2-beta"
+VERSION = "v5.0.3-beta"
 
 
 class EngineRestoreMixin:

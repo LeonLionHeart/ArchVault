@@ -461,7 +461,7 @@ class _UnmountWorker(QThread):
         subprocess.run(self.cmd, shell=True)
         self.done.emit()
 
-VERSION = "v5.0.2-beta"
+VERSION = "v5.0.3-beta"
 
 _SRC_ACTIVE   = ("background: qlineargradient(x1:0,y1:0,x2:1,y2:0,"
                  "stop:0 #1d4ed8,stop:1 #3b82f6); color:#fff; "

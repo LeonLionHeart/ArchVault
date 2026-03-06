@@ -8,7 +8,7 @@ from soft_ui_components import (BTN_SUCCESS, BTN_DANGER, BTN_WARNING,
                                  BTN_SECONDARY, mk_page_title)
 import os
 
-VERSION = "v5.0.2-beta"
+VERSION = "v5.0.3-beta"
 
 _SEC_LABEL = ("font-size:10px; font-weight:700; letter-spacing:1.5px; "
               "color:#64748b; background:transparent; border:none;")

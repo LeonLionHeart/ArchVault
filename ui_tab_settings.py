@@ -18,7 +18,7 @@ import subprocess
 import json
 from datetime import datetime
 
-VERSION = "v5.0.2-beta"
+VERSION = "v5.0.3-beta"
 
 # ── Shared micro-styles ──────────────────────────────────────────────────────
 _SEC_LABEL = ("font-size:10px; font-weight:700; letter-spacing:1.5px; "
@@ -584,7 +584,22 @@ class SettingsMixin:
         </style>
         <h2>ArchVault Change Log</h2>
 
-        <p class="ver-current">v5.0.2-beta
+        <p class="ver-current">v5.0.3-beta
+            <span class="date">2026-03-04</span></p>
+        <ul>
+            <li><b>Fix — "QTableWidget has been deleted" error on
+                settings save:</b> When a dashboard tile containing a
+                QTableWidget was removed (or dashboard was reset), the
+                Python attribute still referenced the destroyed C++
+                object. Applying a theme during save would crash on the
+                stale reference. Dashboard retheme and refresh now
+                validate widget liveness before access. Save function
+                isolates theme application so file-write errors are
+                reported correctly and retheme glitches are silently
+                handled.</li>
+        </ul>
+
+        <p class="ver-old">v5.0.2-beta
             <span class="date">2026-03-03</span></p>
         <ul>
             <li><b>Fix — PKGBUILD packaging:</b>

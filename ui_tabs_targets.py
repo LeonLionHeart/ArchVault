@@ -12,7 +12,7 @@ from soft_ui_components import (BTN_PRIMARY, BTN_SUCCESS, BTN_DANGER,
                                  BTN_WARNING, BTN_SECONDARY, BTN_INFO,
                                  mk_page_title)
 
-VERSION = "v5.0.2-beta"
+VERSION = "v5.0.3-beta"
 
 # ── Shared micro-styles ──────────────────────────────────────────────────────
 _SEC_LABEL = ("font-size:10px; font-weight:700; letter-spacing:1.5px; "

@@ -13,7 +13,7 @@ import subprocess
 import json
 from datetime import datetime
 
-VERSION = "v5.0.2-beta"
+VERSION = "v5.0.3-beta"
 
 _SEC_LABEL = ("font-size:10px; font-weight:700; letter-spacing:1.5px; "
               "color:#64748b; background:transparent; border:none;")

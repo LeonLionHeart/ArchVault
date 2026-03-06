@@ -13,7 +13,7 @@ from ui_tab_jobs import JobsMixin
 from ui_tab_settings import SettingsMixin
 from ui_tab_snapshot_browser import SnapshotBrowserMixin
 
-VERSION = "v5.0.2-beta"
+VERSION = "v5.0.3-beta"
 
 # Modern button styles - shared across all modules
 BTN_PRIMARY = "background-color: #6366f1; color: white; font-weight: bold; padding: 8px 16px; border-radius: 6px; border: none;"

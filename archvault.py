@@ -49,7 +49,7 @@ from ui_tabs_main import UITabsMainMixin
 from ui_tabs_targets import UITabsTargetsMixin
 from ui_tab_tasks import TasksMixin
 
-VERSION = "v5.0.2-beta"
+VERSION = "v5.0.3-beta"
 SETTINGS_FILE = "/etc/archvault/app_settings.json"
 JOBS_FILE = "/etc/archvault/archvault_jobs.json"
 
@@ -517,8 +517,19 @@ class ArchVault(
             with open(SETTINGS_FILE, "w") as f:
                 json.dump(self.settings, f, indent=4)
             os.chmod(SETTINGS_FILE, 0o600)
+        except Exception as e:
+            QMessageBox.critical(
+                self, "Error", f"Failed to save settings: {e}")
+            return
 
+        # Apply theme and UI updates — errors here are non-fatal
+        # because settings were already written to disk above.
+        try:
             self.apply_theme(self.settings["theme"])
+        except RuntimeError:
+            pass  # stale widget reference during retheme — harmless
+
+        try:
             if hasattr(self, 'apply_time_format'):
                 self.apply_time_format()
 
@@ -529,13 +540,12 @@ class ArchVault(
             if hasattr(self, '_bottom_log_bar'):
                 self._bottom_log_bar.setVisible(
                     self.settings.get("show_log_bar", True))
+        except RuntimeError:
+            pass  # stale widget reference — harmless
 
-            self.log("INFO: Application settings updated and saved.")
-            QMessageBox.information(
-                self, "Success", "Global settings saved and applied.")
-        except Exception as e:
-            QMessageBox.critical(
-                self, "Error", f"Failed to save settings: {e}")
+        self.log("INFO: Application settings updated and saved.")
+        QMessageBox.information(
+            self, "Success", "Global settings saved and applied.")
 
     def execute_headless_task(self, task_name):
         task = self.scheduled_tasks.get(task_name)

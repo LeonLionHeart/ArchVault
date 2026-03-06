@@ -12,7 +12,7 @@ from PyQt6.QtWidgets import (QMessageBox, QDialog, QVBoxLayout, QHBoxLayout,
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
 
-VERSION = "v5.0.2-beta"
+VERSION = "v5.0.3-beta"
 
 CONFIG_DIR        = "/etc/archvault"
 SALT_FILE         = os.path.join(CONFIG_DIR, "archvault.salt")
